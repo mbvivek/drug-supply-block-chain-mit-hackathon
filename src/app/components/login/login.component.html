@@ -1,0 +1,21 @@
+<div class="template background-image" style="background-image: url('./assets/images/background.png'); background-size:cover;">
+  <p class="py-5 m-0 text-center display-4">
+    <strong>Drug Supply Block Chain</strong>
+  </p>
+  <div class="container text-center col-6 offset-3">
+    <h5 class="m-1">Scan using uPort app to login</h5>
+    <img class="qrc mt-2 mb-4" *ngIf="qr" src={{qr.src}} alt="QR Code">
+    <p>New User?
+      <a href="register" class="btn btn-sm btn-outline-dark">Register</a>
+    </p>
+  </div>
+  <button class="btn btn-sm btn-link  mx-1" (click)="initAdminContract()">Init Admin</button>
+  <button class="btn btn-sm btn-link  mx-1" (click)="initManufacturerContract()">Init Manufacturer</button>
+  <button class="btn btn-sm btn-link  mx-1" (click)="initDistributorContract()">Init Distributor</button>
+  <button class="btn btn-sm btn-link  mx-1" (click)="initPharmacyContract()">Init Pharmacy</button>
+  <hr>
+  <button class="btn btn-sm btn-link  mx-1" (click)="loginAdmin()">Login Admin</button>
+  <button class="btn btn-sm btn-link  mx-1" (click)="loginManufacturer()">Login Manufacturer</button>
+  <button class="btn btn-sm btn-link  mx-1" (click)="loginDistributor()">Login Distributor</button>
+  <button class="btn btn-sm btn-link  mx-1" (click)="loginPharmacy()">Login Pharmacy</button>
+</div>

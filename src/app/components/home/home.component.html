@@ -1,0 +1,175 @@
+<div class="container">
+  <div class="py-4">
+    <h2 class="text-center">Drug Supply Block Chain</h2>
+  </div>
+  <hr>
+  <div class="py-2">
+    <h6>Hello
+      <b>{{userOrg.adminName}}!</b>
+      <!-- Button -->
+      <button class="btn btn-sm btn-danger float-right mx-1" (click)="logout()">Logout</button>
+      <button class="btn btn-sm btn-primary float-right mx-1" *ngIf="selectedView != 'manageMedication'" (click)="selectedView = 'manageMedication'">Home</button>
+    </h6>
+    <h6>
+      {{userOrg.name}} ({{userOrg.orgType}})
+    </h6>
+  </div>
+  <hr>
+  <br>
+
+  <!-- Manage Medications -->
+  <div class="container" *ngIf="selectedView == 'manageMedication'">
+    <h4>Manage Medications</h4>
+    <ol>
+      <li *ngIf="isManufacturer">
+        <button class="btn btn-link" (click)="selectedView = 'createMedication'">Create Medication</button>
+      </li>
+      <li>
+        <button class="btn btn-link" (click)="selectedView = 'viewInventory'; getMedicationsInInventory()">View Inventory</button>
+      </li>
+      <li>
+        <button class="btn btn-link" (click)="selectedView = 'sendMedication'; getMedicationsInInventory(); getOtherOrganizations()">Send Medication</button>
+      </li>
+      <li>
+        <button class="btn btn-link" (click)="selectedView = 'checkMedicationStatus'; getMedicationsInInventory(); medicationToCheck = null; medicationToCheckTxs=[]">Check Medication Status</button>
+      </li>
+    </ol>
+  </div>
+
+  <!-- Create Medication -->
+  <div class="container" *ngIf="selectedView == 'createMedication'">
+    <h4 class="text-center">Create Medication</h4>
+    <br>
+    <form #form="ngForm" (submit)="createMedication($event, form)" class="col-10 offset-1">
+      <div class="row">
+        <div class="col mx-auto">
+          <div class="form-group form-row">
+            <div class="col-6">
+              <label>Medication Name</label>
+              <input type="text" class="form-control" name="name" [(ngModel)]="medicationToCreate.name" required>
+            </div>
+            <div class="col-6">
+              <label>Manufactured Date</label>
+              <input type="date" class="form-control" name="manufactureredDate" [(ngModel)]="medicationToCreate.manufacturedDate" required>
+            </div>
+          </div>
+          <div class="form-group form-row">
+            <div class="col-6">
+              <label>Expiration Date</label>
+              <input type="date" class="form-control" name="expirationDate" [(ngModel)]="medicationToCreate.expirationDate" required>
+            </div>
+            <div class="col-6">
+              <label>Status</label>
+              <input type="text" class="form-control" name="status" [(ngModel)]="medicationToCreate.status" placeholder="Status of the medication">
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary float-right">Submit</button>
+          <div class="clearfix"></div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- View Inventory -->
+  <div class="container" *ngIf="selectedView == 'viewInventory'">
+    <h4 class="text-center">View Inventory</h4>
+    <p>There are {{medicationsInInventory.length}} medication(s) available</p>
+    <br>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Medication ID</th>
+          <th>Medication Name</th>
+          <th>Manufacturer</th>
+          <th>Manufactured Date</th>
+          <th>Expiration Date</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody *ngFor="let medication of medicationsInInventory">
+        <tr>
+          <td>0x...{{medication.id.substr(medication.id.length - 6)}}</td>
+          <td>{{medication.name}}</td>
+          <td>{{getOrgName(medication.manufacturerId)}}</td>
+          <td>{{medication.manufacturedDate}}</td>
+          <td>{{medication.expirationDate}}</td>
+          <td>{{medication.status}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Send Medication -->
+  <div class="container" *ngIf="selectedView == 'sendMedication'">
+    <h4 class="text-center">Send Medication</h4>
+    <p>There are {{medicationsInInventory.length}} medication(s) available</p>
+    <br>
+    <form #form="ngForm" (submit)="sendMedication($event, form)" class="col-10 offset-1">
+      <div class="row">
+        <div class="col mx-auto">
+          <div class="form-group form-row">
+            <div class="col-6">
+              <label>Medication</label>
+              <select class="form-control" name="medicationId" [(ngModel)]="medicationToSend.medicationId" required>
+                <option *ngFor="let medication of medicationsInInventory" [value]="medication.id">
+                  {{medication.name}} (0x...{{medication.id.substr(medication.id.length - 6)}})
+                </option>
+              </select>
+            </div>
+            <div class="col-6">
+              <label>Organization</label>
+              <select class="form-control" name="organizationId" [(ngModel)]="medicationToSend.organizationId" required>
+                <option *ngFor="let organization of otherOrganizations" [value]="organization.id">
+                  {{organization.name}} ({{organization.physicalAddress}})
+                </option>
+              </select>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary float-right">Submit</button>
+          <div class="clearfix"></div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Check Medication Status -->
+  <div class="container" *ngIf="selectedView == 'checkMedicationStatus'">
+    <h4 class="text-center">Check Medication Status</h4>
+    <form #form="ngForm" (submit)="checkMedication($event, form)" class="col-10 offset-1">
+      <div class="form-group">
+        <div class="row">
+          <label>Medication</label>
+          <select class="form-control" name="medicationToCheck" [(ngModel)]="medicationToCheck" required>
+            <option *ngFor="let medication of medicationsInInventory" [value]="medication.id">
+              {{medication.name}} (0x...{{medication.id.substr(medication.id.length - 6)}})
+            </option>
+          </select>
+        </div>
+        <br>
+        <button type="submit" class="btn btn-primary float-right">Submit</button>
+        <div class="clearfix"></div>
+        <br>
+        <div class="row">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Tx ID</th>
+                <th>From Org</th>
+                <th>To Org</th>
+              </tr>
+            </thead>
+            <tbody *ngFor="let tx of medicationToCheckTxs">
+              <tr>
+                <td>{{tx.returnValues.id}}</td>
+                <td>{{getOrgName(tx.returnValues.fromOrganizationId)}}</td>
+                <td>{{getOrgName(tx.returnValues.toOrganizationId)}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </form>
+  </div>
+
+</div>

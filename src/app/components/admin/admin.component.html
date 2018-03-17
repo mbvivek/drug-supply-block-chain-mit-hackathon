@@ -1,0 +1,131 @@
+<div class="container">
+  <div class="py-4">
+    <h2 class="text-center">Drug Supply Block Chain</h2>
+  </div>
+  <hr>
+  <div class="py-2">
+    <h6>Hello
+      <b>{{userOrg.adminName}}!</b>
+      <button class="btn btn-sm btn-danger float-right" (click)="logout()">Logout</button>
+    </h6>
+    <h6>
+      {{userOrg.name}} ({{userOrg.orgType}})
+    </h6>
+  </div>
+  <hr>
+  <br>
+  <div>
+    <h4>Applications pending for approval</h4>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Organization Name</th>
+          <th>Admin Name</th>
+          <th>Admin UPort Address</th>
+          <th>Appication Date</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody *ngFor="let application of applications">
+        <!-- <tr *ngIf="application.status!=null && application.status=='Pending'"> -->
+        <tr>
+          <td>{{application.orgName}}</td>
+          <td>{{application.adminName}}</td>
+          <td>{{application.adminUportAddress}}</td>
+          <td>{{application.date}}</td>
+          <td>
+            <button type="button" class="btn btn-sm btn-info float-right" (click)="selectApplication(application)" data-toggle="modal"
+              data-target="#viewApplicationModal">
+              View
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="viewApplicationModal" tabindex="-1" role="dialog" aria-labelledby="viewApplicationModalTitle"
+  aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">View Application</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form #form="ngForm" (submit)="approveApplication($event, form)" *ngIf="!isApproved" class="col-10 offset-1">
+          <div class="row">
+            <div class="col mx-auto">
+              <div class="form-group form-row">
+                <div class="col-6">
+                  <label>Name</label>
+                  <input type="text" class="form-control" name="adminName" [(ngModel)]="selectedApplication.adminName" readonly required>
+                </div>
+                <div class="col-6">
+                  <label>uPort Address</label>
+                  <input type="text" class="form-control" name="adminUportAddress" [(ngModel)]="selectedApplication.adminUportAddress" readonly
+                    required>
+                </div>
+              </div>
+              <div class="form-group form-row">
+                <div class="col-6">
+                  <label>Organization Name</label>
+                  <input type="email" class="form-control" name="orgName" [(ngModel)]="selectedApplication.orgName" placeholder="Your Company Name">
+                </div>
+                <div class="col-6">
+                  <label>Organization Address</label>
+                  <input type="text" class="form-control" name="orgAddress" [(ngModel)]="selectedApplication.orgAddress" placeholder="Your Company Address"
+                    required>
+                </div>
+              </div>
+              <div class="form-group form-row">
+                <div class="col-6">
+                  <label>Organization Type</label>
+                  <select class="form-control" name="orgType" [(ngModel)]="selectedApplication.orgType" required>
+                    <option value="Manufacturer">Manufacturer</option>
+                    <option value="Supplier">Supplier</option>
+                    <option value="Pharmacy">Pharmacy</option>
+                  </select>
+                </div>
+                <div class="col-6">
+                  <label>Email</label>
+                  <input type="email" class="form-control" name="email" [(ngModel)]="selectedApplication.email" placeholder="you@example.com">
+                </div>
+              </div>
+              <div class="form-group form-row">
+                <div class="col-6">
+                  <label>Phone</label>
+                  <input type="text" class="form-control" name="phone" [(ngModel)]="selectedApplication.phone" placeholder="Your valid phone number"
+                    required>
+                </div>
+                <div class="col-6">
+                  <label>Token Validity (in Days)</label>
+                  <input type="number" class="form-control" name="tokenValiditty" [(ngModel)]="selectedApplication.tokenValidity" required>
+                </div>
+              </div>
+              <p>
+                <input type="checkbox" [checked]="isReviewed" (change)="isReviewed = !isReviewed"> I hereby confirm that the documents reviewed by me are correct and valid.
+              </p>
+              <button type="button" class="btn btn-primary float-right mx-1" [disabled]="!isReviewed" (click)="approveApplication($event, form)">Approve</button>
+              <button type="button" class="btn btn-danger float-right mx-1" (click)="rejectApplication()">Reject</button>
+            </div>
+          </div>
+        </form>
+        <div *ngIf="isDeployed" class="text-center mx-auto">
+          <h4>Contract Deployed Successfully!</h4>
+          <p>Below QR Code is to be scanned by the applicant to get the verification token on his uPort app.</p>
+          <img class="qrc mt-2 mb-4" *ngIf="qr" src={{qr.src}} alt="QR Code">
+          <br>
+          <button type="button" class="btn btn-default" (click)="refreshTable()" data-dismiss="modal">Done</button>
+        </div>
+      </div>
+      <div class="modal-footer">
+      </div>
+    </div>
+  </div>
+</div>
